@@ -15,7 +15,7 @@
   } else {
     val
   }
-} 
+}
 
 /// check if a value is a certain type
 #let is-type(val, typ) = {
@@ -41,17 +41,19 @@
 
 /// maps an input to an boolean
 #let bool-input(name) = {
-  let value = json.decode(sys.inputs.at(name, default: "false"))
+  let value = json(bytes(sys.inputs.at(name, default: "false")))
   assert(type(value) == bool, message: "--input " + name + "=... must be set to true or false if present")
   value
 }
 
-// #let push_and_return(a_list, value) = {
-//   a_list.push(value)
-//   return a_list
-// }
+// maps an input to a date
+#let parse-date-str(date) = {
+  if date == none { return none }
+  assert(type(date) == str, message: "Expected string, found:" + type(date))
+  if date.match(regex("^\d{4}\-(0?[1-9]|1[012])\-(0?[1-9]|[12][0-9]|3[01])$")) != none {
+    let da = date.split("-").map(p => int(p))
+    return datetime(year: da.at(0), month: da.at(1), day: da.at(2))
+  }
+  return none
 
-// #let increase_last(a_list, value) = {
-//   a_list.last() += value
-//   return a_list
-// }
+}
